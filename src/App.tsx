@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import './App.css'
 import {
   brandConfig,
@@ -7,6 +8,16 @@ import {
   type ServiceFront,
   type TextBlock,
 } from './content'
+
+const navigationItems = [
+  { label: 'Início', id: 'inicio' },
+  { label: 'Quem somos', id: 'quem-somos' },
+  { label: 'Por que a NIX', id: 'por-que-a-nix' },
+  { label: 'Frentes de atuação', id: 'frentes-de-atuacao' },
+  { label: 'Segmentos', id: 'segmentos' },
+  { label: 'Plano 90 dias', id: 'plano-90-dias' },
+  { label: 'Proposta', id: 'proposta' },
+]
 
 type SectionHeaderProps = {
   eyebrow: string
@@ -81,10 +92,67 @@ function TimelineCard({ step, index }: { step: OnboardingStep; index: number }) 
   )
 }
 
+function BottomTabBar() {
+  const [activeId, setActiveId] = useState(navigationItems[0].id)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+          }
+        }
+      },
+      { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
+    )
+
+    for (const item of navigationItems) {
+      const el = document.getElementById(item.id)
+      if (el) observer.observe(el)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault()
+    const target = document.getElementById(id)
+    if (target) {
+      target.scrollIntoView()
+      setActiveId(id)
+    }
+  }
+
+  return (
+    <nav className="bottom-tab-bar" aria-label="Navegação por seções">
+      {navigationItems.map((item, index) => {
+        const isCta = index === navigationItems.length - 1
+        const isActive = activeId === item.id
+        let className = 'bottom-tab-bar__link'
+        if (isActive) className += ' bottom-tab-bar__link--active'
+        if (isCta) className += ' bottom-tab-bar__link--cta'
+
+        return (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={className}
+            onClick={(e) => handleClick(e, item.id)}
+            aria-current={isActive ? 'location' : undefined}
+          >
+            {item.label}
+          </a>
+        )
+      })}
+    </nav>
+  )
+}
+
 function App() {
   return (
     <main className="proposal-page">
-      <section className="hero-section" aria-labelledby="proposal-title">
+      <section id="inicio" className="hero-section" aria-labelledby="proposal-title">
         <div className="page-shell">
           <header className="topbar">
             <img
@@ -131,7 +199,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section profile-section" aria-labelledby="profile-title">
+      <section id="quem-somos" className="content-section profile-section" aria-labelledby="profile-title">
         <div className="page-shell">
           <SectionHeader
             eyebrow="Quem somos"
@@ -149,7 +217,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section why-section" aria-labelledby="why-title">
+      <section id="por-que-a-nix" className="content-section why-section" aria-labelledby="why-title">
         <div className="page-shell">
           <SectionHeader
             eyebrow="Por que a NIX"
@@ -178,7 +246,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section services-section" aria-labelledby="services-title">
+      <section id="frentes-de-atuacao" className="content-section services-section" aria-labelledby="services-title">
         <div className="page-shell">
           <SectionHeader
             eyebrow="Frentes de atuação"
@@ -195,7 +263,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section segments-section" aria-labelledby="segments-title">
+      <section id="segmentos" className="content-section segments-section" aria-labelledby="segments-title">
         <div className="page-shell segments-layout">
           <SectionHeader
             eyebrow="Segmentos atendidos"
@@ -210,7 +278,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section onboarding-section" aria-labelledby="onboarding-title">
+      <section id="plano-90-dias" className="content-section onboarding-section" aria-labelledby="onboarding-title">
         <div className="page-shell">
           <SectionHeader
             eyebrow="Plano 90 dias"
@@ -226,7 +294,7 @@ function App() {
         </div>
       </section>
 
-      <section className="content-section final-section" aria-labelledby="terms-title">
+      <section id="proposta" className="content-section final-section" aria-labelledby="terms-title">
         <div className="page-shell final-layout">
           <div className="terms-card">
             <SectionHeader
@@ -254,6 +322,8 @@ function App() {
           </aside>
         </div>
       </section>
+
+      <BottomTabBar />
     </main>
   )
 }
