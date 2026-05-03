@@ -52,12 +52,12 @@ function SectionHeader({
         align === "center" && "mx-auto text-center",
       )}
     >
-      <span className="font-display text-[0.78rem] uppercase leading-tight text-gold">
+      <span className="font-display text-lg uppercase leading-tight text-gold">
         {eyebrow}
       </span>
       <h2
         id={id}
-        className="mt-3 text-[clamp(2.15rem,4.2vw,4rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-balance sm:text-[clamp(3.15rem,6.1vw,5.65rem)]"
+        className="mt-3 text-[clamp(1.6rem,3.2vw,2.4rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-balance sm:text-[clamp(2.2rem,4vw,3.2rem)]"
       >
         {title}
       </h2>
@@ -146,7 +146,11 @@ function AnimatedMetricValue({ value }: { value: string }) {
   }, [shouldAnimate, parts, value]);
 
   return (
-    <strong ref={nodeRef} aria-label={value}>
+    <strong
+      ref={nodeRef}
+      aria-label={value}
+      className="text-[clamp(2.2rem,4vw,3.5rem)] font-[760]"
+    >
       {displayValue}
     </strong>
   );
@@ -199,7 +203,9 @@ function ServiceCard({ service }: { service: ServiceFront }) {
       <h3 className="mt-[30px] text-[clamp(1.55rem,2.6vw,2.35rem)] font-[760] leading-[1.02] tracking-[-0.03em]">
         {service.name}
       </h3>
-      <p className="mt-4 leading-[1.65] text-navy-soft">{service.description}</p>
+      <p className="mt-4 leading-[1.65] text-navy-soft">
+        {service.description}
+      </p>
       <ul className="mt-auto grid gap-[11px] list-none pt-7">
         {service.gains.map((gain) => (
           <li key={gain} className="bullet-gold relative pl-5">
@@ -276,7 +282,7 @@ function TabNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[100] flex bg-navy border-t-2 border-gold tab-nav-safe-bottom [webkit-overflow-scrolling:touch] md:top-1/2 md:left-5 md:right-auto md:bottom-auto md:flex-col md:gap-1 md:max-w-fit md:border-t-0 md:rounded-r-tab md:bg-navy md:shadow-[0_8px_32px_rgba(5,45,80,0.18),0_2px_8px_rgba(0,0,0,0.08)] md:p-1.5 md:-translate-y-1/2"
+      className="fixed inset-x-0 bottom-0 z-[100] flex overflow-hidden bg-navy border-t-2 border-gold tab-nav-safe-bottom [webkit-overflow-scrolling:touch] md:top-1/2 md:left-5 md:right-auto md:bottom-auto md:flex-col md:gap-1 md:max-w-fit md:overflow-visible md:border-t-0 md:rounded-tab md:bg-navy md:shadow-[0_8px_32px_rgba(5,45,80,0.18),0_2px_8px_rgba(0,0,0,0.08)] md:p-1.5 md:-translate-y-1/2"
       aria-label="Navegação por seções"
     >
       {navigationItems.map((item, index) => {
@@ -289,16 +295,16 @@ function TabNav() {
             key={item.id}
             href={`#${item.id}`}
             className={cn(
-              "group relative flex min-h-[52px] flex-1 items-center justify-center px-3 py-2.5 text-center font-semibold text-white/[0.65] text-[0.82rem] whitespace-nowrap no-underline transition-colors duration-150 md:flex-none md:rounded-sm md:px-2.5",
+              "group relative flex min-h-[44px] flex-1 items-center justify-center px-3 py-2 text-center font-semibold text-white/[0.65] text-[0.82rem] whitespace-nowrap no-underline transition-colors duration-150 md:flex-none md:rounded-sm md:px-2.5",
               isActive && "bg-yellow-500/[0.12] text-yellow-400",
-              isCta && "flex-[1.3] bg-gold font-[750] text-navy md:flex-none md:rounded-sm",
+              isCta && "flex-[1.3] bg-gold font-[750] text-navy md:flex-none",
               isCta && isActive && "bg-yellow text-navy",
             )}
             onClick={(e) => handleClick(e, item.id)}
             aria-current={isActive ? "location" : undefined}
           >
             <Icon size={18} />
-            <span className="pointer-events-none absolute whitespace-nowrap text-[0.82rem] font-semibold opacity-0 transition-opacity duration-150 md:left-[calc(100%+10px)] md:top-1/2 md:-translate-y-1/2 md:bg-white md:text-navy md:rounded-md md:px-2.5 md:py-1 md:shadow-[0_4px_16px_rgba(5,45,80,0.15)] group-hover:opacity-100">
+            <span className="pointer-events-none absolute z-50 whitespace-nowrap text-[0.82rem] font-semibold opacity-0 transition-opacity duration-150 md:left-[calc(100%+10px)] md:top-1/2 md:-translate-y-1/2 md:bg-white md:text-navy md:rounded-md md:px-2.5 md:py-1 md:shadow-[0_4px_16px_rgba(5,45,80,0.15)] group-hover:opacity-100">
               {item.label}
             </span>
           </a>
@@ -331,27 +337,27 @@ function App() {
 
           <div className="grid grid-cols-1 items-center gap-[clamp(36px,7vw,92px)] lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
             <div className="min-w-0 max-w-[760px]">
-              <p className="font-display mb-[18px] text-[0.78rem] uppercase leading-tight text-gold">
-                Para {proposalContent.recipientName}
+              <p className="font-display mb-[18px] text-lg uppercase leading-tight text-gold">
+                Proposta para
               </p>
               <h1
                 id="proposal-title"
-                className="max-w-[760px] text-[clamp(3.2rem,7.2vw,6.65rem)] font-[760] leading-[1.02] tracking-[-0.035em]"
+                className="max-w-[760px] text-[clamp(3.2rem,7.2vw,6.65rem)] font-[760] leading-[1.02] tracking-[-0.035em] text-gold"
               >
-                {proposalContent.title}
+                {proposalContent.recipientName}
               </h1>
               <p className="mt-7 max-w-[650px] text-[clamp(1.05rem,1.7vw,1.28rem)] leading-[1.7] text-navy-soft">
                 {proposalContent.summary}
               </p>
             </div>
 
-             <aside
-               className="min-w-0 border border-line rounded-sm bg-white/[0.94] p-[clamp(24px,4vw,38px)] shadow-[0_24px_70px_rgba(5,45,80,0.09)]"
-               aria-label="Apresentação da NIX"
-             >
-               <h2 className="mt-[18px] text-[clamp(1.9rem,3vw,2.7rem)] font-[760] leading-[1.02] tracking-[-0.025em]">
-                 {proposalContent.heroTagline}
-               </h2>
+            <aside
+              className="min-w-0 border border-line rounded-sm bg-white/[0.94] p-[clamp(24px,4vw,38px)] shadow-[0_24px_70px_rgba(5,45,80,0.09)]"
+              aria-label="Apresentação da NIX"
+            >
+              <h2 className="mt-[18px] text-[clamp(1.9rem,3vw,2.7rem)] font-[760] leading-[1.02] tracking-[-0.025em]">
+                {proposalContent.title}
+              </h2>
               <p className="mt-3 font-[750] text-gold">{brandConfig.tagline}</p>
               <dl className="mt-8 grid gap-4 border-t border-line pt-6">
                 <div className="inline-flex min-h-[34px] items-center justify-center rounded-full border border-gold/[0.72] bg-yellow px-[14px] text-navy shadow-[0_10px_24px_rgba(253,185,17,0.18)] font-display text-[0.78rem] leading-tight uppercase md:min-h-[58px] md:px-[30px] md:text-[0.98rem] md:shadow-[0_18px_36px_rgba(253,185,17,0.22)]">
@@ -463,7 +469,10 @@ function App() {
             id="segments-title"
             title="Atuação ampla para operações em expansão."
           />
-          <ul className="flex flex-wrap gap-2.5" aria-label="Segmentos atendidos">
+          <ul
+            className="flex flex-wrap gap-2.5"
+            aria-label="Segmentos atendidos"
+          >
             {proposalContent.segments.map((segment) => (
               <li
                 key={segment}
@@ -518,23 +527,23 @@ function App() {
           </div>
 
           <aside
-            className="flex flex-col justify-between border border-line rounded-sm bg-navy p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]"
+            className="flex flex-col justify-between border border-line rounded-sm bg-navy p-[clamp(18px,2.5vw,26px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]"
             aria-label="Próximo passo"
           >
             <div>
               <span className="font-display text-[0.78rem] uppercase leading-tight text-yellow">
                 Próximo passo
               </span>
-              <h2 className="mt-[18px] text-[clamp(1.75rem,3vw,2.55rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-white">
+              <h2 className="mt-[14px] text-[clamp(1.75rem,3vw,2.55rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-white">
                 Validar os dados finais e avançar com a proposta NIX.
               </h2>
-              <p className="mt-[18px] text-white/[0.72]">
+              <p className="mt-[14px] text-white/[0.72]">
                 {proposalContent.cta.phone} · {proposalContent.cta.email} ·{" "}
                 {proposalContent.cta.social}
               </p>
             </div>
             <a
-              className="mt-[34px] inline-flex min-h-[52px] w-fit cursor-pointer items-center justify-center rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4 md:w-full"
+              className="mt-[24px] inline-flex min-h-[48px] w-fit cursor-pointer items-center justify-center rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4 md:w-full"
               href={proposalContent.cta.href}
             >
               {proposalContent.cta.label}
