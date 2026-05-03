@@ -1,0 +1,356 @@
+.proposal-page {
+  min-height: 100svh;
+  background:
+    linear-gradient(135deg, rgba(5, 45, 80, 0.98), rgba(5, 45, 80, 0.88)),
+    url('./assets/brand/nix-pattern.jpg') center / 680px auto;
+  color: var(--color-white);
+}
+
+.hero-section,
+.content-section,
+.terms-section,
+.closing-section {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.hero-section {
+  min-height: 720px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 72px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px 0;
+}
+
+.brand-logo {
+  width: clamp(148px, 22vw, 260px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.32));
+}
+
+.topbar span,
+.eyebrow,
+.section-heading span,
+.company-card__label,
+.plan-card__topline {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.topbar span {
+  color: var(--color-yellow);
+  font-size: clamp(0.74rem, 1.6vw, 0.95rem);
+}
+
+.hero-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 390px);
+  gap: clamp(32px, 7vw, 88px);
+  align-items: end;
+  padding-top: 68px;
+}
+
+.hero-copy {
+  max-width: 720px;
+}
+
+.eyebrow {
+  color: var(--color-yellow);
+  font-size: 0.92rem;
+  margin-bottom: 18px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  color: inherit;
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.96;
+}
+
+h1 {
+  font-size: clamp(4.25rem, 10vw, 8.5rem);
+  max-width: 780px;
+}
+
+.hero-summary {
+  max-width: 620px;
+  margin-top: 28px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.6;
+}
+
+.company-card {
+  border: 1px solid rgba(255, 207, 0, 0.42);
+  background: rgba(0, 0, 0, 0.22);
+  padding: clamp(24px, 4vw, 36px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(18px);
+}
+
+.company-card__label {
+  color: var(--color-yellow);
+  font-size: 0.78rem;
+}
+
+.company-card h2 {
+  margin-top: 22px;
+  font-size: clamp(2rem, 4vw, 3.75rem);
+}
+
+.company-card p {
+  margin-top: 20px;
+  color: var(--color-gold);
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.content-section {
+  padding: 82px 0 72px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.section-heading h2,
+.terms-section h2,
+.closing-section h2 {
+  font-size: clamp(2.3rem, 5.8vw, 4.75rem);
+}
+
+.section-heading span {
+  color: var(--color-yellow);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.plan-card {
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-navy);
+  padding: clamp(24px, 4vw, 34px);
+}
+
+.plan-card--featured {
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
+  color: var(--color-black);
+}
+
+.plan-card__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(5, 45, 80, 0.72);
+  font-size: 0.8rem;
+}
+
+.plan-card__topline strong {
+  color: var(--color-black);
+  font-weight: 500;
+}
+
+.plan-card__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: 42px;
+}
+
+.plan-card h3 {
+  font-size: clamp(2.4rem, 5vw, 4.7rem);
+}
+
+.plan-card__heading p {
+  padding-top: 0.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.plan-card__description {
+  max-width: 520px;
+  margin-top: 28px;
+  color: rgba(5, 45, 80, 0.72);
+  line-height: 1.55;
+}
+
+.plan-card--featured .plan-card__description {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.plan-card ul,
+.terms-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.plan-card ul {
+  display: grid;
+  gap: 12px;
+  margin: auto 0 0;
+}
+
+.plan-card li {
+  display: flex;
+  gap: 10px;
+  color: rgba(5, 45, 80, 0.9);
+  line-height: 1.42;
+}
+
+.plan-card--featured li {
+  color: rgba(0, 0, 0, 0.86);
+}
+
+.plan-card li::before,
+.terms-section li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  margin-top: 0.52rem;
+  background: var(--color-gold);
+}
+
+.plan-card--featured li::before {
+  background: var(--color-navy);
+}
+
+.terms-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1fr);
+  gap: clamp(36px, 7vw, 96px);
+  padding: 54px 0 82px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.terms-section ul {
+  display: grid;
+  gap: 18px;
+}
+
+.terms-section li {
+  display: flex;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+}
+
+.closing-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 40px 0 54px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.closing-section h2 {
+  max-width: 760px;
+}
+
+.closing-section a {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 0 26px;
+  background: var(--color-gold);
+  color: var(--color-black);
+  font-family: var(--font-display);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.closing-section a:focus-visible {
+  outline: 3px solid var(--color-white);
+  outline-offset: 4px;
+}
+
+@media (max-width: 780px) {
+  .hero-section,
+  .content-section,
+  .terms-section,
+  .closing-section {
+    width: min(100% - 28px, 1120px);
+  }
+
+  .hero-section {
+    min-height: auto;
+    padding-bottom: 48px;
+  }
+
+  .topbar {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .hero-grid,
+  .plans-grid,
+  .terms-section {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid {
+    padding-top: 48px;
+  }
+
+  .section-heading,
+  .closing-section {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .plan-card {
+    min-height: 0;
+  }
+
+  .plan-card__heading {
+    display: block;
+  }
+
+  .plan-card__heading p {
+    margin-top: 14px;
+  }
+
+  .closing-section a {
+    width: 100%;
+  }
+}

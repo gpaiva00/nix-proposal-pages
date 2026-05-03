@@ -1,0 +1,47 @@
+@font-face {
+  font-family: 'Laqonic 4F Unicase';
+  src: url('./assets/fonts/laqonic-4f-unicase-medium.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  --color-navy: #052d50;
+  --color-yellow: #ffcf00;
+  --color-black: #000000;
+  --color-gold: #fdb911;
+  --color-white: #ffffff;
+  --font-display: 'Laqonic 4F Unicase', 'Arial Narrow', sans-serif;
+  --font-body:
+    Avenir, Montserrat, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  font-family: var(--font-body);
+  color: var(--color-white);
+  background: var(--color-navy);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-navy);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+}
