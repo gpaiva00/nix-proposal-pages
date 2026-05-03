@@ -1,48 +1,129 @@
+@import "tailwindcss";
+
 @font-face {
   font-family: 'Laqonic 4F Unicase';
   src: url('./assets/fonts/laqonic-4f-unicase-medium.ttf') format('truetype');
   font-display: swap;
 }
 
-:root {
+@theme {
   --color-navy: #052d50;
-  --color-yellow: #ffcf00;
-  --color-black: #000000;
+  --color-navy-soft: #4b6279;
+  --color-navy-muted: #6a7d91;
+  --color-navy-dark: #0a3c68;
+  --color-page-bg: #f6f9fc;
+  --color-page-bg-soft: #edf5fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fbfd;
   --color-gold: #fdb911;
-  --color-white: #ffffff;
+  --color-yellow: #ffcf00;
+  --color-line: rgba(5, 45, 80, 0.12);
+  --color-line-strong: rgba(5, 45, 80, 0.2);
+
   --font-display: 'Laqonic 4F Unicase', 'Arial Narrow', sans-serif;
-  --font-body:
-    Avenir, Montserrat, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: Avenir, Montserrat, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  font-family: var(--font-body);
-  color: var(--color-navy);
-  background: var(--color-white);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --radius-sm: 8px;
+  --radius-tab: 14px;
+  --container: 1120px;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  :root {
+    font-family: var(--font-body);
+    color: var(--color-navy);
+    background: var(--color-surface);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  button,
+  a {
+    font: inherit;
+  }
+
+  img {
+    max-width: 100%;
+  }
 }
 
-html {
-  background: var(--color-white);
-  scroll-behavior: smooth;
-}
+@layer components {
+  .proposal-page-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        120deg,
+        transparent 0 11%,
+        rgba(255, 207, 0, 0.08) 11.1% 11.35%,
+        transparent 11.45% 100%
+      ),
+      linear-gradient(90deg, rgba(5, 45, 80, 0.035) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(5, 45, 80, 0.03) 1px, transparent 1px);
+    background-size:
+      100% 760px,
+      96px 96px,
+      96px 96px;
+    opacity: 0.7;
+  }
 
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-}
+  @media (max-width: 767px) {
+    .proposal-page-bg::before {
+      background-size:
+        100% 620px,
+        72px 72px,
+        72px 72px;
+      opacity: 0.48;
+    }
+  }
 
-button,
-a {
-  font: inherit;
-}
+  .bullet-gold::before {
+    content: "";
+    position: absolute;
+    top: 0.72em;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-gold);
+  }
 
-img {
-  max-width: 100%;
+  .timeline-bar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 28px;
+    left: 28px;
+    height: 3px;
+    background: var(--color-gold);
+  }
+
+  .tab-nav-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 1ms !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
 }
