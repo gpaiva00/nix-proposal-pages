@@ -1,15 +1,41 @@
 .proposal-page {
+  position: relative;
   min-height: 100svh;
+  overflow-x: hidden;
+  background: var(--color-white);
+  color: var(--color-navy);
+}
+
+.proposal-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(5, 45, 80, 0.98), rgba(5, 45, 80, 0.88)),
-    url('./assets/brand/nix-pattern.jpg') center / 680px auto;
-  color: var(--color-white);
+    linear-gradient(28deg, transparent 0 35%, rgba(255, 207, 0, 0.18) 35.4% 36.4%, transparent 36.8% 100%),
+    linear-gradient(146deg, transparent 0 42%, rgba(255, 207, 0, 0.15) 42.4% 43.6%, transparent 44% 100%),
+    linear-gradient(62deg, transparent 0 58%, rgba(255, 207, 0, 0.14) 58.5% 59.4%, transparent 59.8% 100%),
+    linear-gradient(118deg, transparent 0 64%, rgba(255, 207, 0, 0.12) 64.4% 65.5%, transparent 65.9% 100%);
+  background-position:
+    0 0,
+    120px 40px,
+    -80px 220px,
+    240px -140px;
+  background-size:
+    760px 560px,
+    920px 620px,
+    840px 680px,
+    980px 720px;
+  opacity: 1;
 }
 
 .hero-section,
 .content-section,
 .terms-section,
 .closing-section {
+  position: relative;
+  z-index: 1;
   width: min(1120px, calc(100% - 40px));
   margin: 0 auto;
 }
@@ -33,7 +59,7 @@
   width: clamp(148px, 22vw, 260px);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.32));
+  filter: drop-shadow(0 18px 34px rgba(5, 45, 80, 0.16));
 }
 
 .topbar span,
@@ -84,6 +110,7 @@ h3 {
   font-family: var(--font-display);
   font-weight: 500;
   line-height: 0.96;
+  text-wrap: balance;
 }
 
 h1 {
@@ -94,16 +121,17 @@ h1 {
 .hero-summary {
   max-width: 620px;
   margin-top: 28px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(5, 45, 80, 0.72);
   font-size: clamp(1.05rem, 2vw, 1.35rem);
   line-height: 1.6;
 }
 
 .company-card {
-  border: 1px solid rgba(255, 207, 0, 0.42);
-  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 207, 0, 0.58);
+  background: rgba(255, 255, 255, 0.78);
   padding: clamp(24px, 4vw, 36px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 24px 80px rgba(5, 45, 80, 0.12);
+  -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
@@ -158,7 +186,7 @@ h1 {
   min-height: 440px;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(5, 45, 80, 0.12);
   background: rgba(255, 255, 255, 0.94);
   color: var(--color-navy);
   padding: clamp(24px, 4vw, 34px);
@@ -257,7 +285,7 @@ h1 {
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1fr);
   gap: clamp(36px, 7vw, 96px);
   padding: 54px 0 82px;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(5, 45, 80, 0.16);
 }
 
 .terms-section ul {
@@ -268,7 +296,7 @@ h1 {
 .terms-section li {
   display: flex;
   gap: 14px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(5, 45, 80, 0.78);
   line-height: 1.6;
 }
 
@@ -278,7 +306,7 @@ h1 {
   justify-content: space-between;
   gap: 32px;
   padding: 40px 0 54px;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(5, 45, 80, 0.16);
 }
 
 .closing-section h2 {
@@ -297,10 +325,19 @@ h1 {
   font-family: var(--font-display);
   text-decoration: none;
   text-transform: uppercase;
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.closing-section a:hover {
+  background: var(--color-yellow);
+  transform: translateY(-1px);
 }
 
 .closing-section a:focus-visible {
-  outline: 3px solid var(--color-white);
+  outline: 3px solid var(--color-navy);
   outline-offset: 4px;
 }
 

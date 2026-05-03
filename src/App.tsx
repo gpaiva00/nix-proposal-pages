@@ -27,7 +27,15 @@ function App() {
     <main className="proposal-page">
       <section className="hero-section" aria-labelledby="proposal-title">
         <header className="topbar">
-          <img src={brandConfig.logo} alt={brandConfig.companyName} className="brand-logo" />
+          <img
+            src={brandConfig.logo}
+            alt={brandConfig.companyName}
+            className="brand-logo"
+            width="2442"
+            height="2232"
+            fetchPriority="high"
+            decoding="async"
+          />
           <span>{brandConfig.contactLabel}</span>
         </header>
 
