@@ -2,20 +2,35 @@ import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,
   Building2,
+  Check,
+  Cpu,
+  DollarSign,
   Globe,
+  Handshake,
   Home,
   ListChecks,
   MessageCircle,
+  Minus,
+  ReceiptText,
   ShieldCheck,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
 import {
   brandConfig,
   proposalContent,
+  type ClientStat,
   type OnboardingStep,
+  type ProposalPlan,
   type ProofPoint,
+  type SegmentResultIcon,
+  type SegmentResult,
   type ServiceFront,
+  type TechDifferential,
   type TextBlock,
 } from "./content";
 import { cn } from "./lib/cn";
@@ -25,10 +40,20 @@ const navigationItems: { label: string; id: string; icon: LucideIcon }[] = [
   { label: "Quem somos", id: "quem-somos", icon: Building2 },
   { label: "Por que a NIX", id: "por-que-a-nix", icon: ShieldCheck },
   { label: "Frentes de atuação", id: "frentes-de-atuacao", icon: Briefcase },
+  { label: "Análise", id: "analise-do-cliente", icon: Target },
   { label: "Segmentos", id: "segmentos", icon: Globe },
   { label: "Plano 90 dias", id: "plano-90-dias", icon: ListChecks },
   { label: "Proposta", id: "proposta", icon: MessageCircle },
 ];
+
+const segmentResultIcons: Record<SegmentResultIcon, LucideIcon> = {
+  clients: Users,
+  credits: DollarSign,
+  growth: TrendingUp,
+  invoices: ReceiptText,
+  network: Handshake,
+  pricing: Target,
+};
 
 type SectionHeaderProps = {
   eyebrow: string;
@@ -249,6 +274,236 @@ function TimelineCard({
   );
 }
 
+function ClientStatCard({ stat }: { stat: ClientStat }) {
+  return (
+    <article className="border border-line bg-white/[0.94] rounded-sm p-[18px] text-navy shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+      <span className="font-display text-[0.78rem] uppercase leading-tight text-gold">
+        {stat.label}
+      </span>
+      <strong className="mt-3 block text-[clamp(1.35rem,2.2vw,1.95rem)] font-[760] leading-[1.05] tracking-[-0.02em]">
+        {stat.value}
+      </strong>
+      {stat.note && (
+        <span className="mt-1 block text-[0.92rem] text-navy-muted">
+          {stat.note}
+        </span>
+      )}
+    </article>
+  );
+}
+
+function SegmentResultCard({
+  result,
+  icon: Icon,
+}: {
+  result: SegmentResult;
+  icon: LucideIcon;
+}) {
+  return (
+    <article className="flex min-h-[210px] flex-col border border-line bg-white/[0.94] rounded-sm p-[clamp(20px,2.6vw,28px)] text-navy shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+      <span className="mb-5 flex size-[42px] items-center justify-center rounded-full bg-gold/[0.16] text-gold">
+        <Icon size={22} strokeWidth={2.3} />
+      </span>
+      <h3 className="text-[clamp(1.18rem,1.8vw,1.45rem)] font-[760] leading-[1.08] tracking-[-0.02em]">
+        {result.title}
+      </h3>
+      <p className="mt-3 leading-[1.62] text-navy-soft">{result.text}</p>
+    </article>
+  );
+}
+
+function PlanHeading({
+  plan,
+  showIcon = false,
+}: {
+  plan: ProposalPlan;
+  showIcon?: boolean;
+}) {
+  const Icon = plan.featured
+    ? TrendingUp
+    : plan.id === "strategic"
+      ? Sparkles
+      : ShieldCheck;
+
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            {showIcon && <Icon size={23} strokeWidth={2.4} />}
+            <h3 className="text-[1.02rem] font-[780] uppercase leading-tight">
+              {plan.name}
+            </h3>
+          </div>
+          <p
+            className={cn(
+              "mt-2 font-[720]",
+              plan.featured ? "text-navy/[0.72]" : "text-yellow",
+            )}
+          >
+            {plan.focus}
+          </p>
+        </div>
+        {plan.featured && (
+          <span className="rounded-full bg-navy px-3 py-1 text-[0.68rem] font-[760] uppercase text-white">
+            Mais escolhido
+          </span>
+        )}
+      </div>
+    </>
+  );
+}
+
+function PlanHeader({ plan }: { plan: ProposalPlan }) {
+  return (
+    <div
+      className={cn(
+        "flex min-h-[136px] flex-col justify-between border-l border-line bg-navy px-4 py-5 text-white",
+        plan.featured &&
+          "relative z-[1] border-gold bg-gold text-navy shadow-[0_16px_34px_rgba(253,185,17,0.2)]",
+      )}
+    >
+      <PlanHeading plan={plan} showIcon />
+    </div>
+  );
+}
+
+function ProposalMatrix() {
+  const plans = proposalContent.proposalPlans;
+
+  return (
+    <>
+      <div className="grid gap-4 md:hidden">
+        {plans.map((plan) => {
+          const includedFeatures = proposalContent.proposalFeatures.filter(
+            (feature) => feature.includedIn.includes(plan.id),
+          );
+
+          return (
+            <article
+              key={plan.id}
+              className={cn(
+                "overflow-hidden rounded-sm border border-line bg-white/[0.96] shadow-[0_12px_38px_rgba(5,45,80,0.08)]",
+                plan.featured && "border-gold/[0.72]",
+              )}
+            >
+              <div
+                className={cn(
+                  "bg-navy px-5 py-5 text-white",
+                  plan.featured && "bg-gold text-navy",
+                )}
+              >
+                <PlanHeading plan={plan} />
+                <strong className="mt-5 block text-[2rem] font-[780] tracking-[-0.04em]">
+                  {plan.price}
+                </strong>
+              </div>
+              <ul className="grid gap-3 p-5 list-none">
+                {includedFeatures.map((feature) => (
+                  <li
+                    key={`${plan.id}-${feature.name}`}
+                    className="flex items-start gap-3"
+                  >
+                    <span className="mt-0.5 flex size-[22px] flex-none items-center justify-center rounded-full bg-gold text-navy">
+                      <Check size={14} strokeWidth={3} />
+                    </span>
+                    <span className="font-[680] leading-[1.35] text-navy-soft">
+                      {feature.name}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-sm border border-line-strong bg-white/[0.96] shadow-[0_22px_70px_rgba(5,45,80,0.1)] md:block">
+        <div className="grid min-w-[820px] grid-cols-[minmax(250px,1.35fr)_repeat(3,minmax(170px,0.86fr))]">
+          <div className="flex min-h-[136px] items-end bg-navy px-5 py-5">
+            <span className="font-display text-[0.94rem] uppercase leading-tight text-gold">
+              Foco
+            </span>
+          </div>
+          {plans.map((plan) => (
+            <PlanHeader key={plan.id} plan={plan} />
+          ))}
+
+          {proposalContent.proposalFeatures.map((feature) => (
+            <div key={feature.name} className="contents">
+              <div className="flex min-h-[58px] items-center border-t border-line bg-white px-5 py-3 font-[720] text-navy">
+                {feature.name}
+              </div>
+              {plans.map((plan) => {
+                const included = feature.includedIn.includes(plan.id);
+
+                return (
+                  <div
+                    key={`${feature.name}-${plan.id}`}
+                    className={cn(
+                      "flex min-h-[58px] items-center justify-center border-l border-t border-line bg-white px-4 py-3",
+                      plan.featured && "bg-yellow-50/[0.82]",
+                    )}
+                    aria-label={`${feature.name}: ${
+                      included ? "incluído" : "não incluído"
+                    } em ${plan.name}`}
+                  >
+                    <span
+                      className={cn(
+                        "flex size-[30px] items-center justify-center rounded-full",
+                        included
+                          ? "bg-gold text-navy"
+                          : "bg-slate-100 text-navy-muted",
+                      )}
+                    >
+                      {included ? (
+                        <Check size={18} strokeWidth={3} />
+                      ) : (
+                        <Minus size={18} strokeWidth={3} />
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+
+          <div className="flex min-h-[82px] items-center gap-3 border-t border-line bg-navy px-5 py-4 text-gold">
+            <DollarSign size={26} strokeWidth={2.4} />
+            <span className="font-display text-[0.94rem] uppercase leading-tight">
+              Investimento
+            </span>
+          </div>
+          {plans.map((plan) => (
+            <div
+              key={`${plan.id}-price`}
+              className={cn(
+                "flex min-h-[82px] items-center justify-center border-l border-t border-line bg-navy px-4 py-4 text-white",
+                plan.featured && "bg-gold text-navy",
+              )}
+            >
+              <strong className="text-[clamp(1.35rem,2.4vw,2rem)] font-[780] tracking-[-0.035em]">
+                {plan.price}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TechDifferentialCard({ item }: { item: TechDifferential }) {
+  return (
+    <article className="min-h-[230px] border border-white/[0.13] bg-white/[0.06] rounded-sm p-[22px] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset]">
+      <h3 className="font-display text-[1rem] uppercase leading-tight text-gold">
+        {item.name}
+      </h3>
+      <p className="mt-4 leading-[1.62] text-white/[0.78]">{item.text}</p>
+    </article>
+  );
+}
+
 function TabNav() {
   const [activeId, setActiveId] = useState(navigationItems[0].id);
 
@@ -459,6 +714,71 @@ function App() {
       </section>
 
       <section
+        id="analise-do-cliente"
+        className="border-t border-[rgba(5,45,80,0.08)] bg-navy py-[64px] text-white md:py-[clamp(72px,9vw,112px)]"
+        aria-labelledby="client-analysis-title"
+      >
+        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
+          <div className="grid grid-cols-1 items-start gap-[clamp(32px,6vw,70px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(420px,1fr)]">
+            <div>
+              <span className="font-display text-lg uppercase leading-tight text-gold">
+                {proposalContent.clientAnalysis.eyebrow}
+              </span>
+              <h2
+                id="client-analysis-title"
+                className="mt-3 text-[clamp(2rem,4.6vw,4.5rem)] font-[760] leading-[0.98] tracking-[-0.04em]"
+              >
+                {proposalContent.clientAnalysis.title}
+              </h2>
+              <p className="mt-6 max-w-[620px] text-[clamp(1.02rem,1.4vw,1.18rem)] leading-[1.68] text-white/[0.76]">
+                {proposalContent.clientAnalysis.description}
+              </p>
+              <div className="mt-8 flex items-start gap-4 border-l-4 border-gold pl-5">
+                <Target className="mt-1 flex-none text-gold" size={28} />
+                <p className="text-[clamp(1.15rem,2vw,1.7rem)] font-[760] leading-[1.18] tracking-[-0.02em]">
+                  {proposalContent.clientAnalysis.fitStatement}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {proposalContent.clientAnalysis.stats.map((stat) => (
+                <ClientStatCard key={stat.label} stat={stat} />
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-[clamp(44px,7vw,76px)]">
+            <div className="mb-[26px] max-w-[980px] sm:mb-[46px]">
+              <span className="font-display text-lg uppercase leading-tight text-gold">
+                Experiência em autopeças
+              </span>
+              <h2
+                id="autopecas-title"
+                className="mt-3 text-[clamp(1.8rem,3.8vw,3.3rem)] font-[760] leading-[1.02] tracking-[-0.03em]"
+              >
+                Resultados que comprovam experiência no segmento.
+              </h2>
+              <p className="mt-[18px] max-w-[780px] text-[clamp(1.02rem,1.45vw,1.2rem)] leading-[1.65] text-white/[0.76]">
+                No setor de autopeças, detalhe fiscal vira lucro quando
+                operação, documentos, impostos e decisões comerciais estão
+                conectados.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {proposalContent.segmentResults.map((result) => (
+                <SegmentResultCard
+                  key={result.title}
+                  result={result}
+                  icon={segmentResultIcons[result.icon]}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
         id="segmentos"
         className="border-t border-[rgba(5,45,80,0.08)] py-[64px] md:py-[clamp(72px,9vw,112px)]"
         aria-labelledby="segments-title"
@@ -506,49 +826,146 @@ function App() {
       </section>
 
       <section
+        className="border-t border-[rgba(5,45,80,0.08)] bg-navy py-[64px] text-white md:py-[clamp(72px,9vw,112px)]"
+        aria-labelledby="differentials-title"
+      >
+        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
+          <div className="mx-auto mb-[34px] max-w-[980px] text-center sm:mb-[52px]">
+            <span className="font-display text-lg uppercase leading-tight text-gold">
+              Diferenciais NIX
+            </span>
+            <h2
+              id="differentials-title"
+              className="mt-3 text-[clamp(2rem,4.8vw,4.2rem)] font-[760] leading-[0.98] tracking-[-0.04em]"
+            >
+              Tecnologia, inteligência e estratégia aplicadas ao negócio.
+            </h2>
+            <p className="mx-auto mt-[18px] max-w-[780px] text-[clamp(1.02rem,1.45vw,1.2rem)] leading-[1.65] text-white/[0.76]">
+              Ferramentas e mentoria que ampliam precisão, agilidade e
+              segurança nas decisões da Tecnoparts.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+            {proposalContent.techDifferentials.map((item) => (
+              <TechDifferentialCard key={item.name} item={item} />
+            ))}
+          </div>
+
+          <aside className="mt-5 grid grid-cols-1 items-center gap-5 border border-gold/[0.62] bg-white/[0.06] rounded-sm p-[clamp(20px,3vw,28px)] md:grid-cols-[minmax(0,0.34fr)_minmax(0,1fr)]">
+            <div className="flex items-center gap-4">
+              <span className="flex size-[54px] items-center justify-center rounded-full bg-gold text-navy">
+                <Cpu size={27} strokeWidth={2.3} />
+              </span>
+              <div>
+                <span className="font-display text-[0.82rem] uppercase leading-tight text-gold">
+                  {proposalContent.mentor.label}
+                </span>
+                <h3 className="mt-1 text-[clamp(1.25rem,2.2vw,1.7rem)] font-[780] leading-[1.05]">
+                  {proposalContent.mentor.name}
+                </h3>
+                <p className="mt-1 text-white/[0.68]">
+                  {proposalContent.mentor.role}
+                </p>
+              </div>
+            </div>
+            <p className="leading-[1.65] text-white/[0.78]">
+              {proposalContent.mentor.text}
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section
         id="proposta"
         className="border-t border-[rgba(5,45,80,0.08)] py-[64px] pb-[clamp(56px,8vw,88px)] md:py-[clamp(72px,9vw,112px)]"
         aria-labelledby="terms-title"
       >
-        <div className="relative z-[1] mx-auto grid w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)] grid-cols-1 items-stretch gap-[18px] lg:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.72fr)]">
-          <div className="border border-line rounded-sm bg-white/[0.94] p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
+          <div className="mb-[34px] grid grid-cols-1 items-end gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)]">
             <SectionHeader
-              eyebrow="Condições"
+              eyebrow="Proposta comercial"
               id="terms-title"
-              title="A proposta é personalizada para cada operação."
+              title="Plano Consultivo para crescimento estruturado."
+              description="A proposta compara três níveis de acompanhamento para a Tecnoparts, com escopo progressivo de operação fiscal, contábil, folha e RH."
             />
-            <ul className="grid gap-[14px] list-none">
-              {proposalContent.terms.map((term) => (
-                <li key={term} className="bullet-gold relative pl-5">
-                  {term}
-                </li>
-              ))}
-            </ul>
+            <div className="border border-gold/[0.5] bg-yellow px-[18px] py-[16px] text-navy rounded-sm shadow-[0_16px_34px_rgba(253,185,17,0.2)]">
+              <span className="font-display text-[0.76rem] uppercase leading-tight">
+                Plano mais escolhido
+              </span>
+              <strong className="mt-2 block text-[clamp(1.4rem,2.6vw,2.2rem)] font-[780] leading-[1.02] tracking-[-0.03em]">
+                Consultivo
+              </strong>
+            </div>
           </div>
 
-          <aside
-            className="flex flex-col justify-between border border-line rounded-sm bg-navy p-[clamp(18px,2.5vw,26px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]"
-            aria-label="Próximo passo"
-          >
-            <div>
-              <span className="font-display text-[0.78rem] uppercase leading-tight text-yellow">
-                Próximo passo
-              </span>
-              <h2 className="mt-[14px] text-[clamp(1.75rem,3vw,2.55rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-white">
-                Validar os dados finais e avançar com a proposta NIX.
-              </h2>
-              <p className="mt-[14px] text-white/[0.72]">
-                {proposalContent.cta.phone} · {proposalContent.cta.email} ·{" "}
-                {proposalContent.cta.social}
-              </p>
+          <ProposalMatrix />
+
+          <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(320px,0.58fr)]">
+            <div className="border border-line rounded-sm bg-white/[0.94] p-[clamp(20px,3vw,28px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+              <div className="mb-5 flex items-center gap-3">
+                <span className="flex size-[42px] items-center justify-center rounded-full bg-gold/[0.16] text-gold">
+                  <ReceiptText size={22} strokeWidth={2.4} />
+                </span>
+                <div>
+                  <span className="font-display text-[0.78rem] uppercase leading-tight text-gold">
+                    Serviços adicionais
+                  </span>
+                  <h3 className="mt-1 text-[clamp(1.25rem,2vw,1.65rem)] font-[760] leading-[1.08] tracking-[-0.02em]">
+                    Honorários mediante consulta.
+                  </h3>
+                </div>
+              </div>
+              <ul className="grid gap-[11px] list-none md:grid-cols-2">
+                {proposalContent.additionalServices.map((service) => (
+                  <li key={service} className="bullet-gold relative pl-5">
+                    {service}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <a
-              className="mt-[24px] inline-flex min-h-[48px] w-fit cursor-pointer items-center justify-center rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4 md:w-full"
-              href={proposalContent.cta.href}
+
+            <aside
+              className="flex flex-col justify-between border border-line rounded-sm bg-navy p-[clamp(20px,3vw,28px)] text-white shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]"
+              aria-label="Próximo passo"
             >
-              {proposalContent.cta.label}
-            </a>
-          </aside>
+              <div>
+                <span className="font-display text-[0.78rem] uppercase leading-tight text-yellow">
+                  Faixa de colaboradores
+                </span>
+                <h3 className="mt-3 text-[clamp(1.45rem,2.6vw,2.1rem)] font-[760] leading-[1.04] tracking-[-0.03em]">
+                  Cresceu? Sua estrutura acompanha.
+                </h3>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {proposalContent.collaboratorRanges.map((range) => (
+                    <span
+                      key={range}
+                      className="rounded-full border border-white/[0.15] bg-white/[0.08] px-3 py-2 text-[0.88rem] leading-tight text-white/[0.78]"
+                    >
+                      {range}
+                    </span>
+                  ))}
+                </div>
+                <ul className="mt-6 grid gap-[11px] list-none">
+                  {proposalContent.terms.map((term) => (
+                    <li key={term} className="bullet-gold relative pl-5">
+                      {term}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-6 text-white/[0.72]">
+                  {proposalContent.cta.phone} · {proposalContent.cta.email} ·{" "}
+                  {proposalContent.cta.social}
+                </p>
+              </div>
+              <a
+                className="mt-[24px] inline-flex min-h-[48px] w-full cursor-pointer items-center justify-center rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4"
+                href={proposalContent.cta.href}
+              >
+                {proposalContent.cta.label}
+              </a>
+            </aside>
+          </div>
         </div>
       </section>
 
