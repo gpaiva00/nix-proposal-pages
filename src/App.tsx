@@ -4,7 +4,6 @@ import {
   BarChart3,
   Briefcase,
   Building2,
-  Check,
   Globe,
   Handshake,
   Home,
@@ -640,15 +639,6 @@ function App() {
                   />
                   Rotina contábil, fiscal e de pessoas conectada a decisões de
                   gestão.
-                </p>
-                <p className="flex items-start gap-3 font-[720] text-navy">
-                  <Check
-                    size={22}
-                    strokeWidth={2.4}
-                    className="mt-0.5 flex-none text-gold"
-                  />
-                  Sem backend nesta versão: o envio abre uma conversa no
-                  WhatsApp com os dados preenchidos.
                 </p>
               </div>
             </div>
