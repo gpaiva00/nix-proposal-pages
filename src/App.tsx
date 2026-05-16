@@ -1,36 +1,29 @@
+import type { FormEvent } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
+  BarChart3,
   Briefcase,
   Building2,
   Check,
-  Cpu,
-  DollarSign,
   Globe,
   Handshake,
   Home,
-  ListChecks,
+  Mail,
   MessageCircle,
-  Minus,
-  ReceiptText,
+  Phone,
   ShieldCheck,
   Sparkles,
-  Target,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
 import {
   brandConfig,
-  proposalContent,
-  type ClientStat,
-  type OnboardingStep,
-  type ProposalPlan,
+  institutionalContent,
+  type ContactField,
   type ProofPoint,
-  type SegmentResultIcon,
-  type SegmentResult,
+  type Segment,
   type ServiceFront,
-  type TechDifferential,
   type TextBlock,
 } from "./content";
 import { cn } from "./lib/cn";
@@ -38,22 +31,11 @@ import { cn } from "./lib/cn";
 const navigationItems: { label: string; id: string; icon: LucideIcon }[] = [
   { label: "Início", id: "inicio", icon: Home },
   { label: "Quem somos", id: "quem-somos", icon: Building2 },
-  { label: "Por que a NIX", id: "por-que-a-nix", icon: ShieldCheck },
-  { label: "Frentes de atuação", id: "frentes-de-atuacao", icon: Briefcase },
-  { label: "Análise", id: "analise-do-cliente", icon: Target },
+  { label: "Serviços", id: "servicos", icon: Briefcase },
+  { label: "Diferenciais", id: "diferenciais", icon: Sparkles },
   { label: "Segmentos", id: "segmentos", icon: Globe },
-  { label: "Plano 90 dias", id: "plano-90-dias", icon: ListChecks },
-  { label: "Proposta", id: "proposta", icon: MessageCircle },
+  { label: "Contato", id: "contato", icon: MessageCircle },
 ];
-
-const segmentResultIcons: Record<SegmentResultIcon, LucideIcon> = {
-  clients: Users,
-  credits: DollarSign,
-  growth: TrendingUp,
-  invoices: ReceiptText,
-  network: Handshake,
-  pricing: Target,
-};
 
 type SectionHeaderProps = {
   eyebrow: string;
@@ -62,6 +44,14 @@ type SectionHeaderProps = {
   id: string;
   align?: "left" | "center";
 };
+
+type MetricValueParts = {
+  prefix: string;
+  target: number;
+  suffix: string;
+};
+
+type LeadFormValues = Record<ContactField["name"], string>;
 
 function SectionHeader({
   eyebrow,
@@ -82,24 +72,23 @@ function SectionHeader({
       </span>
       <h2
         id={id}
-        className="mt-3 text-[clamp(1.6rem,3.2vw,2.4rem)] font-[760] leading-[1.02] tracking-[-0.03em] text-balance sm:text-[clamp(2.2rem,4vw,3.2rem)]"
+        className="mt-3 text-[clamp(1.6rem,3.2vw,2.4rem)] font-[760] leading-[1.02] text-balance sm:text-[clamp(2.2rem,4vw,3.2rem)]"
       >
         {title}
       </h2>
       {description && (
-        <p className="mt-[18px] max-w-[680px] text-[clamp(1rem,1.4vw,1.14rem)] leading-[1.65] text-navy-soft sm:max-w-[780px] sm:text-[clamp(1.08rem,1.6vw,1.24rem)]">
+        <p
+          className={cn(
+            "mt-[18px] max-w-[680px] text-[clamp(1rem,1.4vw,1.14rem)] leading-[1.65] text-navy-soft sm:max-w-[780px] sm:text-[clamp(1.08rem,1.6vw,1.24rem)]",
+            align === "center" && "mx-auto",
+          )}
+        >
           {description}
         </p>
       )}
     </div>
   );
 }
-
-type MetricValueParts = {
-  prefix: string;
-  target: number;
-  suffix: string;
-};
 
 function parseMetricValue(value: string): MetricValueParts | null {
   const match = value.match(/^([^0-9]*)(\d+)(.*)$/);
@@ -119,17 +108,15 @@ function formatMetricValue(parts: MetricValueParts, value: number) {
 function AnimatedMetricValue({ value }: { value: string }) {
   const nodeRef = useRef<HTMLElement | null>(null);
   const parts = useMemo(() => parseMetricValue(value), [value]);
-
-  const shouldAnimate =
-    parts !== null &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const [displayValue, setDisplayValue] = useState(() =>
-    shouldAnimate && parts ? formatMetricValue(parts, 0) : value,
-  );
+  const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
-    if (!shouldAnimate || !parts) return;
+    if (
+      !parts ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
 
     const node = nodeRef.current;
     if (!node) return;
@@ -155,6 +142,7 @@ function AnimatedMetricValue({ value }: { value: string }) {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
+          setDisplayValue(formatMetricValue(parts, 0));
           frame = window.requestAnimationFrame(animate);
           observer.disconnect();
         }
@@ -168,7 +156,7 @@ function AnimatedMetricValue({ value }: { value: string }) {
       if (frame) window.cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [shouldAnimate, parts, value]);
+  }, [parts, value]);
 
   return (
     <strong
@@ -183,25 +171,47 @@ function AnimatedMetricValue({ value }: { value: string }) {
 
 function MetricCard({ point }: { point: ProofPoint }) {
   return (
-    <article className="flex min-h-[150px] flex-col justify-between border border-line bg-white/[0.94] rounded-sm p-[22px] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+    <article className="flex min-h-[150px] flex-col justify-between rounded-sm border border-line bg-white/[0.94] p-[22px] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
       <AnimatedMetricValue value={point.value} />
       <span className="leading-[1.45] text-navy-muted">{point.label}</span>
     </article>
   );
 }
 
-function TextCard({ block, marker }: { block: TextBlock; marker?: string }) {
+function TextCard({
+  block,
+  marker,
+  dark = false,
+}: {
+  block: TextBlock;
+  marker?: string;
+  dark?: boolean;
+}) {
   return (
-    <article className="min-h-[190px] border border-line bg-white/[0.94] rounded-sm p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+    <article
+      className={cn(
+        "min-h-[190px] rounded-sm border p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]",
+        dark
+          ? "border-white/[0.13] bg-white/[0.06] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset]"
+          : "border-line bg-white/[0.94] text-navy",
+      )}
+    >
       {marker && (
         <span className="mb-6 inline-flex font-extrabold text-gold">
           {marker}
         </span>
       )}
-      <h3 className="text-[clamp(1.24rem,2vw,1.68rem)] font-[760] leading-[1.02] tracking-[-0.02em]">
+      <h3 className="text-[clamp(1.24rem,2vw,1.68rem)] font-[760] leading-[1.02]">
         {block.title}
       </h3>
-      <p className="mt-[14px] leading-[1.65] text-navy-soft">{block.text}</p>
+      <p
+        className={cn(
+          "mt-[14px] leading-[1.65]",
+          dark ? "text-white/[0.78]" : "text-navy-soft",
+        )}
+      >
+        {block.text}
+      </p>
     </article>
   );
 }
@@ -210,7 +220,7 @@ function ServiceCard({ service }: { service: ServiceFront }) {
   return (
     <article
       className={cn(
-        "flex min-h-[440px] flex-col border border-line bg-white/[0.94] rounded-sm p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]",
+        "flex min-h-[390px] flex-col rounded-sm border border-line bg-white/[0.94] p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]",
         service.featured &&
           "border-gold/[0.52] bg-gradient-to-b from-yellow-50/[0.98] to-white/[0.96] shadow-[0_18px_48px_rgba(253,185,17,0.14)]",
       )}
@@ -225,13 +235,13 @@ function ServiceCard({ service }: { service: ServiceFront }) {
           </strong>
         )}
       </div>
-      <h3 className="mt-[30px] text-[clamp(1.55rem,2.6vw,2.35rem)] font-[760] leading-[1.02] tracking-[-0.03em]">
+      <h3 className="mt-[30px] text-[clamp(1.55rem,2.6vw,2.35rem)] font-[760] leading-[1.02]">
         {service.name}
       </h3>
       <p className="mt-4 leading-[1.65] text-navy-soft">
         {service.description}
       </p>
-      <ul className="mt-auto grid gap-[11px] list-none pt-7">
+      <ul className="mt-auto grid list-none gap-[11px] pt-7">
         {service.gains.map((gain) => (
           <li key={gain} className="bullet-gold relative pl-5">
             {gain}
@@ -242,265 +252,96 @@ function ServiceCard({ service }: { service: ServiceFront }) {
   );
 }
 
-function TimelineCard({
-  step,
-  index,
-}: {
-  step: OnboardingStep;
-  index: number;
-}) {
+function SegmentCard({ segment }: { segment: Segment }) {
   return (
-    <article className="timeline-bar relative min-h-[370px] border border-line bg-white/[0.94] rounded-sm p-[clamp(22px,3vw,32px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-[2.25rem] font-extrabold leading-none tracking-[-0.04em] text-navy">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <small className="font-display text-[0.78rem] uppercase leading-tight text-gold">
-          {step.period}
-        </small>
-      </div>
-      <h3 className="mt-[34px] text-[clamp(1.45rem,2.4vw,2.05rem)] font-[760] leading-[1.02] tracking-[-0.025em]">
-        {step.phase}
-      </h3>
-      <p className="mt-3 leading-[1.65] text-navy-soft">{step.objective}</p>
-      <ul className="mt-[26px] grid gap-[10px] list-none">
-        {step.items.map((item) => (
-          <li key={item} className="bullet-gold relative pl-5">
-            {item}
-          </li>
-        ))}
-      </ul>
-    </article>
-  );
-}
-
-function ClientStatCard({ stat }: { stat: ClientStat }) {
-  return (
-    <article className="border border-line bg-white/[0.94] rounded-sm p-[18px] text-navy shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
-      <span className="font-display text-[0.78rem] uppercase leading-tight text-gold">
-        {stat.label}
-      </span>
-      <strong className="mt-3 block text-[clamp(1.35rem,2.2vw,1.95rem)] font-[760] leading-[1.05] tracking-[-0.02em]">
-        {stat.value}
-      </strong>
-      {stat.note && (
-        <span className="mt-1 block text-[0.92rem] text-navy-muted">
-          {stat.note}
-        </span>
-      )}
-    </article>
-  );
-}
-
-function SegmentResultCard({
-  result,
-  icon: Icon,
-}: {
-  result: SegmentResult;
-  icon: LucideIcon;
-}) {
-  return (
-    <article className="flex min-h-[210px] flex-col border border-line bg-white/[0.94] rounded-sm p-[clamp(20px,2.6vw,28px)] text-navy shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
+    <article className="flex min-h-[190px] flex-col rounded-sm border border-line bg-white/[0.94] p-[clamp(20px,2.6vw,28px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
       <span className="mb-5 flex size-[42px] items-center justify-center rounded-full bg-gold/[0.16] text-gold">
-        <Icon size={22} strokeWidth={2.3} />
+        <Users size={22} strokeWidth={2.3} />
       </span>
-      <h3 className="text-[clamp(1.18rem,1.8vw,1.45rem)] font-[760] leading-[1.08] tracking-[-0.02em]">
-        {result.title}
+      <h3 className="text-[clamp(1.18rem,1.8vw,1.45rem)] font-[760] leading-[1.08]">
+        {segment.title}
       </h3>
-      <p className="mt-3 leading-[1.62] text-navy-soft">{result.text}</p>
+      <p className="mt-3 leading-[1.62] text-navy-soft">{segment.text}</p>
     </article>
   );
 }
 
-function PlanHeading({
-  plan,
-  showIcon = false,
-}: {
-  plan: ProposalPlan;
-  showIcon?: boolean;
-}) {
-  const Icon = plan.featured
-    ? TrendingUp
-    : plan.id === "strategic"
-      ? Sparkles
-      : ShieldCheck;
+function buildWhatsAppUrl(values: LeadFormValues) {
+  const message = [
+    "Olá, NIX! Gostaria de conversar sobre a minha empresa.",
+    "",
+    `Nome: ${values.name}`,
+    `Empresa: ${values.company}`,
+    `Telefone: ${values.phone}`,
+    values.email ? `E-mail: ${values.email}` : null,
+    values.message ? `Mensagem: ${values.message}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return `https://wa.me/${institutionalContent.contact.whatsappNumber}?text=${encodeURIComponent(
+    message,
+  )}`;
+}
+
+function LeadForm() {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const values = institutionalContent.contact.fields.reduce(
+      (acc, field) => ({
+        ...acc,
+        [field.name]: String(formData.get(field.name) ?? "").trim(),
+      }),
+      {} as LeadFormValues,
+    );
+
+    window.open(buildWhatsAppUrl(values), "_blank", "noopener,noreferrer");
+  }
 
   return (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            {showIcon && <Icon size={23} strokeWidth={2.4} />}
-            <h3 className="text-[1.02rem] font-[780] uppercase leading-tight">
-              {plan.name}
-            </h3>
-          </div>
-          <p
+    <form
+      className="grid gap-4 rounded-sm border border-line bg-white/[0.94] p-[clamp(20px,3vw,30px)] shadow-[0_24px_70px_rgba(5,45,80,0.09)]"
+      onSubmit={handleSubmit}
+    >
+      <div className="grid gap-4 md:grid-cols-2">
+        {institutionalContent.contact.fields.map((field) => (
+          <label
+            key={field.name}
             className={cn(
-              "mt-2 font-[720]",
-              plan.featured ? "text-navy/[0.72]" : "text-yellow",
+              "grid gap-2 font-[720] text-navy",
+              field.name === "message" && "md:col-span-2",
             )}
           >
-            {plan.focus}
-          </p>
-        </div>
-        {plan.featured && (
-          <span className="rounded-full bg-navy px-3 py-1 text-[0.68rem] font-[760] uppercase text-white">
-            Mais escolhido
-          </span>
-        )}
+            {field.label}
+            {field.name === "message" ? (
+              <textarea
+                name={field.name}
+                placeholder={field.placeholder}
+                rows={5}
+                className="min-h-[132px] resize-y rounded-sm border border-line bg-white px-4 py-3 font-[520] leading-[1.45] text-navy outline-none transition-colors focus:border-gold"
+              />
+            ) : (
+              <input
+                name={field.name}
+                type={field.type ?? "text"}
+                placeholder={field.placeholder}
+                required={field.required}
+                className="min-h-[48px] rounded-sm border border-line bg-white px-4 py-3 font-[520] leading-[1.2] text-navy outline-none transition-colors focus:border-gold"
+              />
+            )}
+          </label>
+        ))}
       </div>
-    </>
-  );
-}
-
-function PlanHeader({ plan }: { plan: ProposalPlan }) {
-  return (
-    <div
-      className={cn(
-        "flex min-h-[136px] flex-col justify-between border-l border-line bg-navy px-4 py-5 text-white",
-        plan.featured &&
-          "relative z-[1] border-gold bg-gold text-navy shadow-[0_16px_34px_rgba(253,185,17,0.2)]",
-      )}
-    >
-      <PlanHeading plan={plan} showIcon />
-    </div>
-  );
-}
-
-function ProposalMatrix() {
-  const plans = proposalContent.proposalPlans;
-
-  return (
-    <>
-      <div className="grid gap-4 md:hidden">
-        {plans.map((plan) => {
-          const includedFeatures = proposalContent.proposalFeatures.filter(
-            (feature) => feature.includedIn.includes(plan.id),
-          );
-
-          return (
-            <article
-              key={plan.id}
-              className={cn(
-                "overflow-hidden rounded-sm border border-line bg-white/[0.96] shadow-[0_12px_38px_rgba(5,45,80,0.08)]",
-                plan.featured && "border-gold/[0.72]",
-              )}
-            >
-              <div
-                className={cn(
-                  "bg-navy px-5 py-5 text-white",
-                  plan.featured && "bg-gold text-navy",
-                )}
-              >
-                <PlanHeading plan={plan} />
-                <strong className="mt-5 block text-[2rem] font-[780] tracking-[-0.04em]">
-                  {plan.price}
-                </strong>
-              </div>
-              <ul className="grid gap-3 p-5 list-none">
-                {includedFeatures.map((feature) => (
-                  <li
-                    key={`${plan.id}-${feature.name}`}
-                    className="flex items-start gap-3"
-                  >
-                    <span className="mt-0.5 flex size-[22px] flex-none items-center justify-center rounded-full bg-gold text-navy">
-                      <Check size={14} strokeWidth={3} />
-                    </span>
-                    <span className="font-[680] leading-[1.35] text-navy-soft">
-                      {feature.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          );
-        })}
-      </div>
-
-      <div className="hidden overflow-x-auto rounded-sm border border-line-strong bg-white/[0.96] shadow-[0_22px_70px_rgba(5,45,80,0.1)] md:block">
-        <div className="grid min-w-[820px] grid-cols-[minmax(250px,1.35fr)_repeat(3,minmax(170px,0.86fr))]">
-          <div className="flex min-h-[136px] items-end bg-navy px-5 py-5">
-            <span className="font-display text-[0.94rem] uppercase leading-tight text-gold">
-              Foco
-            </span>
-          </div>
-          {plans.map((plan) => (
-            <PlanHeader key={plan.id} plan={plan} />
-          ))}
-
-          {proposalContent.proposalFeatures.map((feature) => (
-            <div key={feature.name} className="contents">
-              <div className="flex min-h-[58px] items-center border-t border-line bg-white px-5 py-3 font-[720] text-navy">
-                {feature.name}
-              </div>
-              {plans.map((plan) => {
-                const included = feature.includedIn.includes(plan.id);
-
-                return (
-                  <div
-                    key={`${feature.name}-${plan.id}`}
-                    className={cn(
-                      "flex min-h-[58px] items-center justify-center border-l border-t border-line bg-white px-4 py-3",
-                      plan.featured && "bg-yellow-50/[0.82]",
-                    )}
-                    aria-label={`${feature.name}: ${
-                      included ? "incluído" : "não incluído"
-                    } em ${plan.name}`}
-                  >
-                    <span
-                      className={cn(
-                        "flex size-[30px] items-center justify-center rounded-full",
-                        included
-                          ? "bg-gold text-navy"
-                          : "bg-slate-100 text-navy-muted",
-                      )}
-                    >
-                      {included ? (
-                        <Check size={18} strokeWidth={3} />
-                      ) : (
-                        <Minus size={18} strokeWidth={3} />
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-
-          <div className="flex min-h-[82px] items-center gap-3 border-t border-line bg-navy px-5 py-4 text-gold">
-            <DollarSign size={26} strokeWidth={2.4} />
-            <span className="font-display text-[0.94rem] uppercase leading-tight">
-              Investimento
-            </span>
-          </div>
-          {plans.map((plan) => (
-            <div
-              key={`${plan.id}-price`}
-              className={cn(
-                "flex min-h-[82px] items-center justify-center border-l border-t border-line bg-navy px-4 py-4 text-white",
-                plan.featured && "bg-gold text-navy",
-              )}
-            >
-              <strong className="text-[clamp(1.35rem,2.4vw,2rem)] font-[780] tracking-[-0.035em]">
-                {plan.price}
-              </strong>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
-function TechDifferentialCard({ item }: { item: TechDifferential }) {
-  return (
-    <article className="min-h-[230px] border border-white/[0.13] bg-white/[0.06] rounded-sm p-[22px] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset]">
-      <h3 className="font-display text-[1rem] uppercase leading-tight text-gold">
-        {item.name}
-      </h3>
-      <p className="mt-4 leading-[1.62] text-white/[0.78]">{item.text}</p>
-    </article>
+      <button
+        type="submit"
+        className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-sm bg-gold px-[22px] font-[750] text-navy transition-all duration-[180ms] hover:-translate-y-px hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4"
+      >
+        <MessageCircle size={20} strokeWidth={2.5} />
+        {institutionalContent.contact.ctaLabel}
+      </button>
+    </form>
   );
 }
 
@@ -527,17 +368,14 @@ function TabNav() {
     return () => observer.disconnect();
   }, []);
 
-  function handleClick(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
-    e.preventDefault();
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-    }
+  function handleClick(event: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    event.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[100] flex overflow-hidden bg-navy border-t-2 border-gold tab-nav-safe-bottom [webkit-overflow-scrolling:touch] md:top-1/2 md:left-5 md:right-auto md:bottom-auto md:flex-col md:gap-1 md:max-w-fit md:overflow-visible md:border-t-0 md:rounded-tab md:bg-navy md:shadow-[0_8px_32px_rgba(5,45,80,0.18),0_2px_8px_rgba(0,0,0,0.08)] md:p-1.5 md:-translate-y-1/2"
+      className="tab-nav-safe-bottom fixed inset-x-0 bottom-0 z-[100] flex overflow-hidden border-t-2 border-gold bg-navy [webkit-overflow-scrolling:touch] md:top-1/2 md:right-auto md:bottom-auto md:left-5 md:max-w-fit md:-translate-y-1/2 md:flex-col md:gap-1 md:overflow-visible md:rounded-tab md:border-t-0 md:p-1.5 md:shadow-[0_8px_32px_rgba(5,45,80,0.18),0_2px_8px_rgba(0,0,0,0.08)]"
       aria-label="Navegação por seções"
     >
       {navigationItems.map((item, index) => {
@@ -550,12 +388,12 @@ function TabNav() {
             key={item.id}
             href={`#${item.id}`}
             className={cn(
-              "group relative flex min-h-[44px] flex-1 items-center justify-center px-3 py-2 text-center font-semibold text-white/[0.65] text-[0.82rem] whitespace-nowrap no-underline transition-colors duration-150 md:flex-none md:rounded-sm md:px-2.5",
+              "group relative flex min-h-[44px] flex-1 items-center justify-center px-3 py-2 text-center text-[0.82rem] font-semibold whitespace-nowrap text-white/[0.65] no-underline transition-colors duration-150 md:flex-none md:rounded-sm md:px-2.5",
               isActive && "bg-yellow-500/[0.12] text-yellow-400",
               isCta && "flex-[1.3] bg-gold font-[750] text-navy md:flex-none",
               isCta && isActive && "bg-yellow text-navy",
             )}
-            onClick={(e) => handleClick(e, item.id)}
+            onClick={(event) => handleClick(event, item.id)}
             aria-label={item.label}
             aria-current={isActive ? "location" : undefined}
           >
@@ -572,11 +410,11 @@ function TabNav() {
 
 function App() {
   return (
-    <main className="proposal-page-bg relative min-h-[100svh] overflow-x-hidden break-words pb-[72px] bg-gradient-to-b from-page-bg via-white to-surface-muted text-navy md:pl-[72px]">
+    <main className="institutional-page-bg relative min-h-[100svh] overflow-x-hidden break-words bg-gradient-to-b from-page-bg via-white to-surface-muted pb-[72px] text-navy md:pl-[72px]">
       <section
         id="inicio"
         className="px-0 py-7 md:pb-[clamp(72px,9vw,112px)] md:pt-7"
-        aria-labelledby="proposal-title"
+        aria-labelledby="site-title"
       >
         <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
           <header className="flex flex-col items-start justify-start gap-6 pb-[54px] md:flex-row">
@@ -593,32 +431,46 @@ function App() {
 
           <div className="grid grid-cols-1 items-center gap-[clamp(36px,7vw,92px)] lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
             <div className="min-w-0 max-w-[760px]">
-              <p className="font-display mb-[18px] text-lg uppercase leading-tight text-gold">
-                Proposta para
+              <p className="mb-[18px] font-display text-lg uppercase leading-tight text-gold">
+                {institutionalContent.heroTagline}
               </p>
               <h1
-                id="proposal-title"
-                className="max-w-[760px] text-[clamp(3.2rem,7.2vw,6.65rem)] font-[760] leading-[1.02] tracking-[-0.035em] text-gold"
+                id="site-title"
+                className="max-w-[780px] text-[clamp(3.2rem,7.2vw,6.65rem)] font-[760] leading-[1.02] text-gold"
               >
-                {proposalContent.recipientName}
+                {institutionalContent.title}
               </h1>
               <p className="mt-7 max-w-[650px] text-[clamp(1.05rem,1.7vw,1.28rem)] leading-[1.7] text-navy-soft">
-                {proposalContent.summary}
+                {institutionalContent.summary}
               </p>
+              <a
+                className="mt-8 inline-flex min-h-[52px] items-center justify-center gap-2 rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:-translate-y-px hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4"
+                href="#contato"
+              >
+                <MessageCircle size={20} strokeWidth={2.5} />
+                {brandConfig.contactLabel}
+              </a>
             </div>
 
             <aside
-              className="min-w-0 border border-line rounded-sm bg-white/[0.94] p-[clamp(24px,4vw,38px)] shadow-[0_24px_70px_rgba(5,45,80,0.09)]"
+              className="min-w-0 rounded-sm border border-line bg-white/[0.94] p-[clamp(24px,4vw,38px)] shadow-[0_24px_70px_rgba(5,45,80,0.09)]"
               aria-label="Apresentação da NIX"
             >
-              <h2 className="mt-[18px] text-[clamp(1.9rem,3vw,2.7rem)] font-[760] leading-[1.02] tracking-[-0.025em]">
-                {proposalContent.title}
+              <h2 className="mt-[18px] text-[clamp(1.9rem,3vw,2.7rem)] font-[760] leading-[1.02]">
+                {brandConfig.companyName}
               </h2>
               <p className="mt-3 font-[750] text-gold">{brandConfig.tagline}</p>
               <dl className="mt-8 grid gap-4 border-t border-line pt-6">
-                <div className="inline-flex min-h-[34px] items-center justify-center rounded-full border border-gold/[0.72] bg-yellow px-[14px] text-navy shadow-[0_10px_24px_rgba(253,185,17,0.18)] font-display text-[0.78rem] leading-tight uppercase md:min-h-[58px] md:px-[30px] md:text-[0.98rem] md:shadow-[0_18px_36px_rgba(253,185,17,0.22)]">
-                  {brandConfig.contactLabel}
-                </div>
+                {institutionalContent.proofPoints.map((point) => (
+                  <div key={point.label} className="grid gap-1">
+                    <dt className="text-[0.92rem] text-navy-muted">
+                      {point.label}
+                    </dt>
+                    <dd className="text-[1.35rem] font-[760] text-navy">
+                      {point.value}
+                    </dd>
+                  </div>
+                ))}
               </dl>
             </aside>
           </div>
@@ -632,45 +484,31 @@ function App() {
       >
         <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
           <SectionHeader
-            eyebrow="Quem somos"
+            eyebrow={institutionalContent.companyProfile.label}
             id="profile-title"
-            title={proposalContent.companyProfile.title}
+            title={institutionalContent.companyProfile.title}
           />
           <div className="grid grid-cols-1 items-start gap-[clamp(32px,6vw,72px)] lg:grid-cols-[minmax(0,0.78fr)_minmax(420px,1fr)]">
             <p className="text-[clamp(1.05rem,1.5vw,1.22rem)] leading-[1.75] text-navy-soft">
-              {proposalContent.companyProfile.text}
+              {institutionalContent.companyProfile.text}
             </p>
             <div
               className="grid grid-cols-1 gap-[14px] md:grid-cols-3"
               aria-label="Indicadores da NIX"
             >
-              {proposalContent.proofPoints.map((point) => (
+              {institutionalContent.proofPoints.map((point) => (
                 <MetricCard key={point.label} point={point} />
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      <section
-        id="por-que-a-nix"
-        className="border-t border-[rgba(5,45,80,0.08)] py-[64px] md:py-[clamp(72px,9vw,112px)]"
-        aria-labelledby="why-title"
-      >
-        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
-          <SectionHeader
-            eyebrow="Por que a NIX"
-            id="why-title"
-            title="Gestão simples, segura e próxima."
-            description="Princípios claros para organizar a rotina da empresa, reduzir ruídos e manter a operação em conformidade."
-          />
-          <div className="grid gap-[44px]">
+          <div className="mt-[clamp(44px,7vw,76px)] grid gap-[44px]">
             <div>
               <p className="mb-4 text-[0.96rem] font-[760] uppercase leading-tight text-navy-muted">
                 Nosso DNA
               </p>
               <div className="grid grid-cols-1 gap-[14px] md:grid-cols-3">
-                {proposalContent.dna.map((block, index) => (
+                {institutionalContent.dna.map((block, index) => (
                   <TextCard
                     key={block.title}
                     block={block}
@@ -684,7 +522,7 @@ function App() {
                 Valores
               </p>
               <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2 lg:grid-cols-4">
-                {proposalContent.values.map((value) => (
+                {institutionalContent.values.map((value) => (
                   <TextCard key={value.title} block={value} />
                 ))}
               </div>
@@ -694,20 +532,20 @@ function App() {
       </section>
 
       <section
-        id="frentes-de-atuacao"
+        id="servicos"
         className="border-t border-[rgba(5,45,80,0.08)] bg-gradient-to-b from-page-bg-soft/[0.62] to-white/[0.78] py-[64px] md:py-[clamp(72px,9vw,112px)]"
         aria-labelledby="services-title"
       >
         <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
           <SectionHeader
-            eyebrow="Frentes de atuação"
+            eyebrow="Serviços"
             id="services-title"
-            title="Contabilidade, fiscal, trabalhista e RH."
-            description="Serviços organizados para dar clareza, segurança e suporte próximo em cada etapa da operação."
+            title="Contabilidade, fiscal, DP, RH e estratégia em uma só parceria."
+            description="Frentes integradas para dar clareza, segurança e suporte próximo em cada etapa da operação."
             align="center"
           />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {proposalContent.serviceFronts.map((service) => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {institutionalContent.serviceFronts.map((service) => (
               <ServiceCard key={service.name} service={service} />
             ))}
           </div>
@@ -715,66 +553,22 @@ function App() {
       </section>
 
       <section
-        id="analise-do-cliente"
+        id="diferenciais"
         className="border-t border-[rgba(5,45,80,0.08)] bg-navy py-[64px] text-white md:py-[clamp(72px,9vw,112px)]"
-        aria-labelledby="client-analysis-title"
+        aria-labelledby="differentials-title"
       >
         <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
-          <div className="grid grid-cols-1 items-start gap-[clamp(32px,6vw,70px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(420px,1fr)]">
-            <div>
-              <span className="font-display text-lg uppercase leading-tight text-gold">
-                {proposalContent.clientAnalysis.eyebrow}
-              </span>
-              <h2
-                id="client-analysis-title"
-                className="mt-3 text-[clamp(2rem,4.6vw,4.5rem)] font-[760] leading-[0.98] tracking-[-0.04em]"
-              >
-                {proposalContent.clientAnalysis.title}
-              </h2>
-              <p className="mt-6 max-w-[620px] text-[clamp(1.02rem,1.4vw,1.18rem)] leading-[1.68] text-white/[0.76]">
-                {proposalContent.clientAnalysis.description}
-              </p>
-              <div className="mt-8 flex items-start gap-4 border-l-4 border-gold pl-5">
-                <Target className="mt-1 flex-none text-gold" size={28} />
-                <p className="text-[clamp(1.15rem,2vw,1.7rem)] font-[760] leading-[1.18] tracking-[-0.02em]">
-                  {proposalContent.clientAnalysis.fitStatement}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {proposalContent.clientAnalysis.stats.map((stat) => (
-                <ClientStatCard key={stat.label} stat={stat} />
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-[clamp(44px,7vw,76px)]">
-            <div className="mb-[26px] max-w-[980px] sm:mb-[46px]">
-              <span className="font-display text-lg uppercase leading-tight text-gold">
-                Experiência em autopeças
-              </span>
-              <h2
-                id="autopecas-title"
-                className="mt-3 text-[clamp(1.8rem,3.8vw,3.3rem)] font-[760] leading-[1.02] tracking-[-0.03em]"
-              >
-                Resultados que comprovam experiência no segmento.
-              </h2>
-              <p className="mt-[18px] max-w-[780px] text-[clamp(1.02rem,1.45vw,1.2rem)] leading-[1.65] text-white/[0.76]">
-                No setor de autopeças, detalhe fiscal vira lucro quando
-                operação, documentos, impostos e decisões comerciais estão
-                conectados.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {proposalContent.segmentResults.map((result) => (
-                <SegmentResultCard
-                  key={result.title}
-                  result={result}
-                  icon={segmentResultIcons[result.icon]}
-                />
-              ))}
-            </div>
+          <SectionHeader
+            eyebrow="Diferenciais"
+            id="differentials-title"
+            title="Tecnologia, proximidade e visão estratégica aplicadas à rotina."
+            description="A NIX une ferramentas, atendimento humano e leitura consultiva para transformar obrigações em controle e crescimento."
+            align="center"
+          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {institutionalContent.differentials.map((item) => (
+              <TextCard key={item.title} block={item} dark />
+            ))}
           </div>
         </div>
       </section>
@@ -784,189 +578,82 @@ function App() {
         className="border-t border-[rgba(5,45,80,0.08)] py-[64px] md:py-[clamp(72px,9vw,112px)]"
         aria-labelledby="segments-title"
       >
-        <div className="relative z-[1] mx-auto grid w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)] grid-cols-1 items-start gap-[clamp(34px,7vw,82px)] lg:grid-cols-[minmax(0,0.72fr)_minmax(420px,1fr)]">
-          <SectionHeader
-            eyebrow="Segmentos atendidos"
-            id="segments-title"
-            title="Atuação ampla para operações em expansão."
-          />
-          <ul
-            className="flex flex-wrap gap-2.5"
-            aria-label="Segmentos atendidos"
-          >
-            {proposalContent.segments.map((segment) => (
-              <li
-                key={segment}
-                className="inline-flex min-h-[42px] items-center border border-line rounded-full bg-white/[0.88] px-[15px] font-[680] leading-tight text-navy-soft max-sm:min-h-[38px] max-sm:text-[0.94rem]"
-              >
-                {segment}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section
-        id="plano-90-dias"
-        className="border-t border-[rgba(5,45,80,0.08)] py-[64px] md:py-[clamp(72px,9vw,112px)]"
-        aria-labelledby="onboarding-title"
-      >
         <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
           <SectionHeader
-            eyebrow="Plano 90 dias"
-            id="onboarding-title"
-            title="Em 30 dias organizamos. Em 90 dias evoluímos."
-            description="Um início em fases para reduzir riscos na transição, estabilizar a rotina e criar base para melhorias."
+            eyebrow="Segmentos"
+            id="segments-title"
+            title="Atuação ampla para empresas que precisam de gestão consistente."
+            description="A NIX atende diferentes modelos de negócio com o mesmo compromisso: rotina organizada, comunicação próxima e decisões com base em dados."
           />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {proposalContent.onboardingSteps.map((step, index) => (
-              <TimelineCard key={step.phase} step={step} index={index} />
+            {institutionalContent.segments.map((segment) => (
+              <SegmentCard key={segment.title} segment={segment} />
             ))}
           </div>
         </div>
       </section>
 
       <section
-        className="border-t border-[rgba(5,45,80,0.08)] bg-navy py-[64px] text-white md:py-[clamp(72px,9vw,112px)]"
-        aria-labelledby="differentials-title"
-      >
-        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
-          <div className="mx-auto mb-[34px] max-w-[980px] text-center sm:mb-[52px]">
-            <span className="font-display text-lg uppercase leading-tight text-gold">
-              Diferenciais NIX
-            </span>
-            <h2
-              id="differentials-title"
-              className="mt-3 text-[clamp(2rem,4.8vw,4.2rem)] font-[760] leading-[0.98] tracking-[-0.04em]"
-            >
-              Tecnologia, inteligência e estratégia aplicadas ao negócio.
-            </h2>
-            <p className="mx-auto mt-[18px] max-w-[780px] text-[clamp(1.02rem,1.45vw,1.2rem)] leading-[1.65] text-white/[0.76]">
-              Ferramentas e mentoria que ampliam precisão, agilidade e
-              segurança nas decisões da Tecnoparts.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {proposalContent.techDifferentials.map((item) => (
-              <TechDifferentialCard key={item.name} item={item} />
-            ))}
-          </div>
-
-          <aside className="mt-5 grid grid-cols-1 items-center gap-5 border border-gold/[0.62] bg-white/[0.06] rounded-sm p-[clamp(20px,3vw,28px)] md:grid-cols-[minmax(0,0.34fr)_minmax(0,1fr)]">
-            <div className="flex items-center gap-4">
-              <span className="flex size-[54px] items-center justify-center rounded-full bg-gold text-navy">
-                <Cpu size={27} strokeWidth={2.3} />
-              </span>
-              <div>
-                <span className="font-display text-[0.82rem] uppercase leading-tight text-gold">
-                  {proposalContent.mentor.label}
-                </span>
-                <h3 className="mt-1 text-[clamp(1.25rem,2.2vw,1.7rem)] font-[780] leading-[1.05]">
-                  {proposalContent.mentor.name}
-                </h3>
-                <p className="mt-1 text-white/[0.68]">
-                  {proposalContent.mentor.role}
-                </p>
-              </div>
-            </div>
-            <p className="leading-[1.65] text-white/[0.78]">
-              {proposalContent.mentor.text}
-            </p>
-          </aside>
-        </div>
-      </section>
-
-      <section
-        id="proposta"
+        id="contato"
         className="border-t border-[rgba(5,45,80,0.08)] py-[64px] pb-[clamp(56px,8vw,88px)] md:py-[clamp(72px,9vw,112px)]"
-        aria-labelledby="terms-title"
+        aria-labelledby="contact-title"
       >
-        <div className="relative z-[1] mx-auto w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)]">
-          <div className="mb-[34px] grid grid-cols-1 items-end gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)]">
+        <div className="relative z-[1] mx-auto grid w-[min(var(--container),calc(100%-40px))] max-w-[calc(100vw-40px)] grid-cols-1 items-start gap-[clamp(34px,7vw,82px)] lg:grid-cols-[minmax(0,0.72fr)_minmax(420px,1fr)]">
+          <div>
             <SectionHeader
-              eyebrow="Proposta comercial"
-              id="terms-title"
-              title="Plano Consultivo para crescimento estruturado."
-              description="A proposta compara três níveis de acompanhamento para a Tecnoparts, com escopo progressivo de operação fiscal, contábil, folha e RH."
+              eyebrow="Contato"
+              id="contact-title"
+              title={institutionalContent.contact.title}
+              description={institutionalContent.contact.description}
             />
-            <div className="border border-gold/[0.5] bg-yellow px-[18px] py-[16px] text-navy rounded-sm shadow-[0_16px_34px_rgba(253,185,17,0.2)]">
-              <span className="font-display text-[0.76rem] uppercase leading-tight">
-                Plano mais escolhido
-              </span>
-              <strong className="mt-2 block text-[clamp(1.4rem,2.6vw,2.2rem)] font-[780] leading-[1.02] tracking-[-0.03em]">
-                Consultivo
-              </strong>
-            </div>
-          </div>
-
-          <ProposalMatrix />
-
-          <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,0.82fr)_minmax(320px,0.58fr)]">
-            <div className="border border-line rounded-sm bg-white/[0.94] p-[clamp(20px,3vw,28px)] shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]">
-              <div className="mb-5 flex items-center gap-3">
-                <span className="flex size-[42px] items-center justify-center rounded-full bg-gold/[0.16] text-gold">
-                  <ReceiptText size={22} strokeWidth={2.4} />
-                </span>
-                <div>
-                  <span className="font-display text-[0.78rem] uppercase leading-tight text-gold">
-                    Serviços adicionais
-                  </span>
-                  <h3 className="mt-1 text-[clamp(1.25rem,2vw,1.65rem)] font-[760] leading-[1.08] tracking-[-0.02em]">
-                    Honorários mediante consulta.
-                  </h3>
-                </div>
-              </div>
-              <ul className="grid gap-[11px] list-none md:grid-cols-2">
-                {proposalContent.additionalServices.map((service) => (
-                  <li key={service} className="bullet-gold relative pl-5">
-                    {service}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <aside
-              className="flex flex-col justify-between border border-line rounded-sm bg-navy p-[clamp(20px,3vw,28px)] text-white shadow-[0_1px_0_rgba(255,255,255,0.8)_inset]"
-              aria-label="Próximo passo"
-            >
-              <div>
-                <span className="font-display text-[0.78rem] uppercase leading-tight text-yellow">
-                  Faixa de colaboradores
-                </span>
-                <h3 className="mt-3 text-[clamp(1.45rem,2.6vw,2.1rem)] font-[760] leading-[1.04] tracking-[-0.03em]">
-                  Cresceu? Sua estrutura acompanha.
-                </h3>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {proposalContent.collaboratorRanges.map((range) => (
-                    <span
-                      key={range}
-                      className="rounded-full border border-white/[0.15] bg-white/[0.08] px-3 py-2 text-[0.88rem] leading-tight text-white/[0.78]"
-                    >
-                      {range}
-                    </span>
-                  ))}
-                </div>
-                <ul className="mt-6 grid gap-[11px] list-none">
-                  {proposalContent.terms.map((term) => (
-                    <li key={term} className="bullet-gold relative pl-5">
-                      {term}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-6 text-white/[0.72]">
-                  {proposalContent.cta.phone} · {proposalContent.cta.email} ·{" "}
-                  {proposalContent.cta.social}
+            <div className="grid gap-4">
+              <a
+                className="inline-flex min-h-[48px] w-fit items-center gap-3 rounded-sm border border-gold/[0.5] bg-yellow px-[18px] py-[12px] font-[760] text-navy no-underline transition-all hover:-translate-y-px hover:bg-gold"
+                href={`https://wa.me/${institutionalContent.contact.whatsappNumber}`}
+              >
+                <Phone size={20} strokeWidth={2.4} />
+                {institutionalContent.contact.whatsappDisplay}
+              </a>
+              <p className="flex items-center gap-3 text-navy-soft">
+                <Mail size={20} strokeWidth={2.4} className="text-gold" />
+                {institutionalContent.contact.email}
+              </p>
+              <p className="flex items-center gap-3 text-navy-soft">
+                <Handshake size={20} strokeWidth={2.4} className="text-gold" />
+                {institutionalContent.contact.social}
+              </p>
+              <div className="mt-5 grid gap-3 rounded-sm border border-line bg-white/[0.72] p-5">
+                <p className="flex items-start gap-3 font-[720] text-navy">
+                  <ShieldCheck
+                    size={22}
+                    strokeWidth={2.4}
+                    className="mt-0.5 flex-none text-gold"
+                  />
+                  Atendimento consultivo para entender o momento da sua empresa
+                  antes de propor o melhor caminho.
+                </p>
+                <p className="flex items-start gap-3 font-[720] text-navy">
+                  <BarChart3
+                    size={22}
+                    strokeWidth={2.4}
+                    className="mt-0.5 flex-none text-gold"
+                  />
+                  Rotina contábil, fiscal e de pessoas conectada a decisões de
+                  gestão.
+                </p>
+                <p className="flex items-start gap-3 font-[720] text-navy">
+                  <Check
+                    size={22}
+                    strokeWidth={2.4}
+                    className="mt-0.5 flex-none text-gold"
+                  />
+                  Sem backend nesta versão: o envio abre uma conversa no
+                  WhatsApp com os dados preenchidos.
                 </p>
               </div>
-              <a
-                className="mt-[24px] inline-flex min-h-[48px] w-full cursor-pointer items-center justify-center rounded-sm bg-gold px-[22px] font-[750] text-navy no-underline transition-all duration-[180ms] hover:bg-yellow hover:shadow-[0_12px_32px_rgba(5,45,80,0.18)] hover:-translate-y-px focus-visible:outline-[3px] focus-visible:outline-yellow focus-visible:outline-offset-4"
-                href={proposalContent.cta.href}
-              >
-                {proposalContent.cta.label}
-              </a>
-            </aside>
+            </div>
           </div>
+          <LeadForm />
         </div>
       </section>
 

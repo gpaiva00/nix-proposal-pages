@@ -60,7 +60,7 @@
 }
 
 @layer components {
-  .proposal-page-bg::before {
+  .institutional-page-bg::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -82,7 +82,7 @@
   }
 
   @media (max-width: 767px) {
-    .proposal-page-bg::before {
+    .institutional-page-bg::before {
       background-size:
         100% 620px,
         72px 72px,

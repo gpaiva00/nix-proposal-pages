@@ -1,14 +1,14 @@
-# NIX Proposal Pages
+# NIX Institucional
 
-Branded proposal-page scaffold for NIX Contabilidade e RH.
+Site institucional de página única para NIX Contábil & RH.
 
-The NIX identity is fixed across every page: logo, colors, typography, and layout language.
-Proposal data changes per client through `src/content.ts`.
+A identidade NIX permanece fixa: logo, paleta navy/gold, tipografia e linguagem visual. O conteúdo visível fica centralizado em `src/content.ts`.
 
 ## Scripts
 
 ```bash
 npm install
 npm run dev
+npm run lint
 npm run build
 ```

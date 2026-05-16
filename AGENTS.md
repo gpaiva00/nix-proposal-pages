@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Single-page branded proposal site for NIX Contábil & RH. React 19 + TypeScript + Vite + Tailwind CSS 4, no router, no state management.
+Single-page branded institutional site for NIX Contábil & RH. React 19 + TypeScript + Vite + Tailwind CSS 4, no router, no state management, WhatsApp-first lead capture.
 
 ## Commands
 
@@ -15,8 +15,8 @@ No test runner is configured.
 
 ## Architecture
 
-- **`src/content.ts`** — single source of truth for all page content and types. When changing proposal text, data, or adding/removing sections, edit this file. Components consume it; they do not hardcode content.
-- **`src/App.tsx`** — renders the page from `content.ts`; also holds presentational sub-components (`SectionHeader`, `MetricCard`, `TextCard`, `ServiceCard`, `TimelineCard`). Uses Tailwind utility classes with `cn()` from `src/lib/cn.ts` for conditional composition.
+- **`src/content.ts`** — single source of truth for all page content and types. When changing institutional text, service data, contact fields, or adding/removing sections, edit this file. Components consume it; they do not hardcode content.
+- **`src/App.tsx`** — renders the page from `content.ts`; also holds presentational sub-components (`SectionHeader`, `MetricCard`, `TextCard`, `ServiceCard`, `SegmentCard`, `LeadForm`). Uses Tailwind utility classes with `cn()` from `src/lib/cn.ts` for conditional composition.
 - **`src/index.css`** — Tailwind v4 setup (`@import "tailwindcss"`), `@theme` with design tokens (colors, fonts, radius, container), `@font-face`, `@layer base` resets, and `@layer components` for complex CSS (pseudo-elements, gradients, reduced-motion).
 - **`src/lib/cn.ts`** — thin wrapper around `clsx` for conditional class composition.
 
@@ -35,4 +35,4 @@ No test runner is configured.
 
 ## Content language
 
-All proposal content is Brazilian Portuguese. Keep UI text in Portuguese when editing.
+All institutional content is Brazilian Portuguese. Keep UI text in Portuguese when editing.
