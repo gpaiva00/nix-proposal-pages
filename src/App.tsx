@@ -556,10 +556,11 @@ function TabNav() {
               isCta && isActive && "bg-yellow text-navy",
             )}
             onClick={(e) => handleClick(e, item.id)}
+            aria-label={item.label}
             aria-current={isActive ? "location" : undefined}
           >
             <Icon size={18} />
-            <span className="pointer-events-none absolute z-50 whitespace-nowrap text-[0.82rem] font-semibold opacity-0 transition-opacity duration-150 md:left-[calc(100%+10px)] md:top-1/2 md:-translate-y-1/2 md:bg-white md:text-navy md:rounded-md md:px-2.5 md:py-1 md:shadow-[0_4px_16px_rgba(5,45,80,0.15)] group-hover:opacity-100">
+            <span className="pointer-events-none absolute z-50 hidden text-[0.82rem] font-semibold whitespace-nowrap opacity-0 transition-opacity duration-150 md:top-1/2 md:left-[calc(100%+10px)] md:block md:-translate-y-1/2 md:rounded-md md:bg-white md:px-2.5 md:py-1 md:text-navy md:shadow-[0_4px_16px_rgba(5,45,80,0.15)] md:group-hover:opacity-100">
               {item.label}
             </span>
           </a>
